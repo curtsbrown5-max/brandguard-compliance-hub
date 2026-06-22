@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -121,10 +121,12 @@ function AuthPage() {
 function Field({
   label, type, value, onChange,
 }: { label: string; type: string; value: string; onChange: (v: string) => void }) {
+  const id = useId();
+
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
-      <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} required minLength={type === "password" ? 6 : undefined} />
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} type={type} value={value} onChange={(e) => onChange(e.target.value)} required minLength={type === "password" ? 6 : undefined} />
     </div>
   );
 }
