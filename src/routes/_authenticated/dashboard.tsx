@@ -66,7 +66,10 @@ function Dashboard() {
     const { error } = await supabase
       .from("locations")
       .insert({ ...values, user_id: userData.user.id });
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Location added");
     setCreateOpen(false);
     load();
@@ -75,7 +78,10 @@ function Dashboard() {
   const handleUpdate = async (values: LocationScores) => {
     if (!editing) return;
     const { error } = await supabase.from("locations").update(values).eq("id", editing.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Location updated");
     setEditing(null);
     load();
