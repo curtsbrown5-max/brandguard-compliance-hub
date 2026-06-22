@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState<{ type: "error" | "success"; text: string } | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -27,24 +28,37 @@ function AuthPage() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage(null);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      setMessage({ type: "error", text: error.message });
+      return toast.error(error.message);
+    }
     toast.success("Welcome back!");
     navigate({ to: "/dashboard", replace: true });
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage(null);
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: { emailRedirectTo: `${window.location.origin}/dashboard` },
     });
     setLoading(false);
-    if (error) return toast.error(error.message);
+    if (error) {
+      setMessage({ type: "error", text: error.message });
+      return toast.error(error.message);
+    }
+    if (!data.session) {
+      const text = "Account created. Check your email to confirm it, then log in.";
+      setMessage({ type: "success", text });
+      return toast.success(text);
+    }
     toast.success("Account created!");
     navigate({ to: "/dashboard", replace: true });
   };
@@ -68,6 +82,17 @@ function AuthPage() {
               <TabsTrigger value="login">Log In</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
             </TabsList>
+              {message && (
+                <p
+                  className={`mt-4 rounded-md border px-3 py-2 text-sm ${
+                    message.type === "error"
+                      ? "border-destructive/30 bg-destructive/10 text-destructive"
+                      : "border-primary/30 bg-primary/10 text-primary"
+                  }`}
+                >
+                  {message.text}
+                </p>
+              )}
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4 pt-4">
                 <Field label="Email" type="email" value={email} onChange={setEmail} />
@@ -96,10 +121,12 @@ function AuthPage() {
 function Field({
   label, type, value, onChange,
 }: { label: string; type: string; value: string; onChange: (v: string) => void }) {
+  const id = useId();
+
   return (
     <div className="space-y-2">
-      <Label>{label}</Label>
-      <Input type={type} value={value} onChange={(e) => onChange(e.target.value)} required minLength={type === "password" ? 6 : undefined} />
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} type={type} value={value} onChange={(e) => onChange(e.target.value)} required minLength={type === "password" ? 6 : undefined} />
     </div>
   );
 }
