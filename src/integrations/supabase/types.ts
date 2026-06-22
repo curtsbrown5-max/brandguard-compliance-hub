@@ -14,7 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      locations: {
+        Row: {
+          cleanliness: number
+          color_compliance: number
+          created_at: string
+          id: string
+          merchandising: number
+          name: string
+          safety: number
+          signage: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cleanliness?: number
+          color_compliance?: number
+          created_at?: string
+          id?: string
+          merchandising?: number
+          name: string
+          safety?: number
+          signage?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cleanliness?: number
+          color_compliance?: number
+          created_at?: string
+          id?: string
+          merchandising?: number
+          name?: string
+          safety?: number
+          signage?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
