@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { LocationFormDialog, type LocationScores } from "@/components/LocationFormDialog";
+import { posthog } from "@/lib/posthog";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
@@ -70,6 +71,7 @@ function Dashboard() {
       toast.error(error.message);
       return;
     }
+    posthog.capture("audit_logged", { location_name: values.name });
     toast.success("Location added");
     setCreateOpen(false);
     load();
